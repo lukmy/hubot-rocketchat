@@ -1,5 +1,6 @@
-FROM node:0.12.4
-MAINTAINER Sing Li <sli@makawave.com>
+FROM node:4
+MAINTAINER Yiguang Lu <luyg@Ctrip.com>
+# MAINTAINER Rocket.Chat Team <buildmaster@rocket.chat>
 
 RUN npm install -g coffee-script yo generator-hubot  &&  \
 	useradd hubot -m
@@ -30,6 +31,12 @@ RUN cd /home/hubot/node_modules/hubot-rocketchat && \
 	npm install && \
 	coffee -c /home/hubot/node_modules/hubot-rocketchat/src/*.coffee && \
 	cd /home/hubot
+
+# update coffee-script to adapt ES6
+RUN cd /home/hubot && npm install --save coffee-script
+
+# patch hubot
+ADD ./patch/hubot /home/hubot/bin/hubot
 
 CMD node -e "console.log(JSON.stringify('$EXTERNAL_SCRIPTS'.split(',')))" > external-scripts.json && \
 	npm install $(node -e "console.log('$EXTERNAL_SCRIPTS'.split(',').join(' '))") && \
